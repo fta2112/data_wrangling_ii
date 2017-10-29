@@ -6,25 +6,102 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+
+library(tidyverse)
+library(janitor)
+library(haven)
+library(rvest)
+library(httr)
+
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r }
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+drug_use_xml = read_html(url)
 
-```{r cars}
-summary(cars)
+drug_use_xml
+
+drug_use_xml %>%
+  html_nodes(css = "table")
+
+table_marj = (drug_use_xml %>% html_nodes(css = "table"))[[1]] %>%
+  html_table() 
+
+View(table_marj)
+
 ```
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r learning 1}
+
+url = "https://www.bestplaces.net/cost_of_living/city/new_york/new_york"
+nyc_cost_living = read_html(url)
+
+nyc_cost_living
+
+nyc_cost_living %>%
+  html_nodes(css = "table")
+
+table_nyc = (nyc_cost_living %>% html_nodes(css = "table"))[[1]] %>%
+  html_table() 
+
+##See from lecture
+
+
+
+
 ```
+
+```{r}
+
+hpss_html = read_html("http://www.imdb.com/title/tt0241527/")
+
+cast = hpss_html %>%
+  html_nodes(".itemprop .itemprop") %>%
+  html_text()
+
+## what is happening
+```
+
+```{r open data water}
+
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.csv") %>% 
+  content("parsed")
+
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.json") %>% 
+  content("text") %>%
+  jsonlite::fromJSON() %>%
+  as_tibble()
+
+brfss = 
+  GET("https://chronicdata.cdc.gov/api/views/hn4x-zwk7/rows.csv?accessType=DOWNLOAD") %>% 
+  content("parsed")
+
+```
+```{r Pokemon API}
+
+poke = GET("http://pokeapi.co/api/v2/pokemon/1") %>%
+  content()
+
+poke$name
+## [1] "bulbasaur"
+
+poke$height
+## [1] 7
+
+poke$abilities
+
+
+```
+
+
+
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
